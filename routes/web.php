@@ -17,4 +17,8 @@ Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
 
+// Route::get('{all}', function () {
+//     return view('index');
+// })->where(['all' => '.*']);
+
 require __DIR__.'/auth.php';
