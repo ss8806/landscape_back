@@ -73,18 +73,10 @@ class ArticleController extends Controller
     public function store(Request $request, Article $article)
     {
         try{
-            // DBに保存
             $user = Auth::user();
             $article->user_id   = $user->id;
             $article->title     = $request->input('title');
             $article->category_id     = $request->input('category_id');
-
-            // if($file = $request->hasFile('pic1')){
-            //     $path = 'mydata'; 
-            //     //     // AWS S3 に保存する
-            //     $s3_file_name = Storage::disk('s3')->put($path, $file);
-            //     $article->pic1  = $s3_file_name;
-            // }
 
             $base64File = $request->input('pic1');
                 // Log::info($$base64File);
@@ -100,31 +92,11 @@ class ArticleController extends Controller
                 $fileName = md5(uniqid(rand(), true)). ".$extension";
                 // AWS S3 に保存する
                 Storage::disk('s3')->put($fileName, $fileData);
-                
-                // データベースに保存するためのパスを返す
-                // return Storage::disk('s3')->url($fileName);
-                // Base64文字列をデコードしてバイナリに変換
-                // list(, $fileData) = explode(';', $file_base64);
-                // list(, $fileData) = explode(',', $fileData);
-                // $fileData = base64_decode($file_base64);
-
-        
-                // // ランダムなファイル名 + 拡張子
-                // $fileName = Str::random(20).'.png';
-        
-                // // 保存するパスを決める
-                // $path = 'mydata/'.$fileName; 
-        
-                // // AWS S3 に保存する
-                // Storage::disk('s3')->put($path, $fileData);
                 // DBに保存
                 $article->pic1 = $fileName;
                 
             $article->body     = $request->input('body');
             $article->save();
-            
-            // Auth::user()->articles()->save($article->fill($request->all()));
-
             // return redirect()->route('articles')->with('success', __('Registered'));
 
         } catch (\Exception $e) {
