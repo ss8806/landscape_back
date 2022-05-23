@@ -62,13 +62,6 @@ class ArticleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    // public function store(Request $request)
-    // {
-    //     $articles = Article::create($request->all());
-    //     return response()->json(
-    //         $articles, 201
-    //     );
-    // }
 
     public function store(Request $request, Article $article)
     {
@@ -97,41 +90,27 @@ class ArticleController extends Controller
                 
             $article->body     = $request->input('body');
             $article->save();
-            // return redirect()->route('articles')->with('success', __('Registered'));
-
+            // return response()->json(compact('article'),200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            throw ValidationException::withMessages([
-                'url' => 'エラー登録できませんでした。'
-            ]);
+            return response()->json(
+                $article
+            );
         }
-
     }
 
-        // public function editIcon(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     $file_base64 = $request->input('icon');
-    //     Log::info($file_base64);
-    //     // Base64文字列をデコードしてバイナリに変換
-    //     list(, $fileData) = explode(';', $file_base64);
-    //     list(, $fileData) = explode(',', $fileData);
-    //     $fileData = base64_decode($fileData);
+    public function edit(Request $request, $id)
+    {  
+            $user = Auth::user();
+            $article = Article::find($id);
+            $user_id = $article->user()->get();
+            $c_name = $article->category()->get();
+            $categories = Category::orderBy('sort_no')->get();
+            return response()->json(
+                $categories, 200
+            );
+    }
 
-    //     // ランダムなファイル名 + 拡張子
-    //     $fileName = Str::random(20).'.jpg';
-
-    //     // 保存するパスを決める
-    //     $path = 'mydata/'.$fileName; 
-
-    //     // AWS S3 に保存する
-    //     Storage::disk('s3')->put($path, $fileData);
-    //     // DBに保存
-    //     $user->icon = $fileName;
-    //     $user->save();
-    //     User::where('id', $request->id)->update(['icon' => $fileName]);
-    //     return redirect()->back();
-    // }
 
     /**
      * Update the specified resource in storage.

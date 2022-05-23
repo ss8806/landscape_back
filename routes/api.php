@@ -41,6 +41,11 @@ Route::middleware('auth:sanctum')
         // article
         Route::get('/article/create', [ArticleController::class, 'create'])->name('create');
         Route::post('/article/store', [ArticleController::class, 'store'])->name('store');
+        Route::post('/article/store1', [ArticleController::class, 'store1'])->name('store1');
+        // Route::post('/article/store',function(){
+        //     dd(request()->all());
+        // });
+
         Route::get('/article/{id}/edit', [ArticleController::class, 'edit'])->name('edit');
         Route::post('/article/{id}/update', [ArticleController::class, 'update'])->name('update');
         Route::delete('/article/{id}/delete',  [ArticleController::class, 'destroy'])->name('delete');
