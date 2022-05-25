@@ -39,12 +39,40 @@ class ArticleController extends Controller
          *
          * @return \Illuminate\Http\Response
          */
-    
-    public function index()
-    {
-        $articles = Article::all();
+
+    public function index(){
+        // $articles = Article::all();
+        return Article::with(['category'])->get()->toJson();
+    }
+
+    public function show(Request $request, $id)
+    {  
+        $article = Article::find($id);
+        $cate = $article->category()->get();
+        // $cate[] = $article; // 配列を追加してもreactではうまくいかない
+        // return response()->json(compact('article'),200);
+        // return response()->json(
+        // );
         return response()->json(
-            $articles, 200
+            [$article] 
+        );
+    }
+
+    public function c_name(Request $request, $id)
+    {  
+            $article = Article::find($id);
+            $c_name = $article->category()->get();          
+            return response()->json(
+                $c_name      
+            );
+    }
+
+    public function u_name(Request $request, $id)
+    {  
+        $article = Article::find($id);
+        $u_name = $article->user()->get();          
+        return response()->json(
+            $u_name      
         );
     }
 
@@ -105,12 +133,18 @@ class ArticleController extends Controller
             $article = Article::find($id);
             $user_id = $article->user()->get();
             $c_name = $article->category()->get();
+            
             $categories = Category::orderBy('sort_no')->get();
+            // return response()->json(compact('article'),200);
             return response()->json(
-                $categories, 200
+                [$article, $user_id, $c_name, 200]
             );
-    }
 
+            // $categories = Category::all();
+            //     return response()->json(
+            //     $categories, 200
+            // );
+    }
 
     /**
      * Update the specified resource in storage.
@@ -119,24 +153,82 @@ class ArticleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+
+    // public function update(Request $request, Article $article, $id)
+    // {
+    //     try{
+    //         $user = Auth::user();
+    //         $article->user_id   = $user->id;
+    //         $article->title     = $request->input('title');
+    //         $article->category_id     = $request->input('category_id');
+    //         $base64File = $request->input('pic1');
+    //             // Log::info($$base64File);
+    //              // "data:{拡張子}"と"base64,"で区切る
+    //             list($fileInfo, $fileData) = explode(';', $base64File);
+    //             // 拡張子を取得
+    //             $extension = explode('/', $fileInfo)[1];
+    //             // $fileDataにある"base64,"を削除する
+    //             list(, $fileData) = explode(',', $fileData);
+    //             // base64をデコード
+    //             $fileData = base64_decode($fileData);
+    //             // ランダムなファイル名生成
+    //             $fileName = md5(uniqid(rand(), true)). ".$extension";
+    //             // AWS S3 に保存する
+    //             Storage::disk('s3')->put($fileName, $fileData);
+    //             // DBに保存
+    //             $article->pic1 = $fileName;
+                
+    //         $article->body     = $request->input('body');
+    //         $article->save();
+    //         // return response()->json(compact('article'),200);
+    //     } catch (\Exception $e) {
+    //         Log::error($e->getMessage());
+    //         return response()->json(
+    //             $article
+    //         );
+    //     }
+    //     // $update = [
+    //     //     'title' => $request->title,
+    //     //     'body' => $request->body,
+    //     //     'category_id' => $request->category_id,
+    //     // ];
+        
+    //     // $articles = Article::where('id', $id)->update($update);
+    //     // $articless = Article::all();
+    //     // if ($articles) {
+    //     //     return response()->json(
+    //     //         $articless
+    //     //     , 200);
+    //     // } else {
+    //     //     return response()->json([
+    //     //         'message' => 'articles not found',
+    //     //     ], 404);
+    //     // }
+    // }
+
+    public function update(Request $request, Article $article, $id)
     {
-        $update = [
-            'title' => $request->title,
-            'body' => $request->body,
-            'category_id' => $request->category_id,
-        ];
-        $articles = Article::where('id', $id)->update($update);
-        $articless = Article::all();
-        if ($articles) {
-            return response()->json(
-                $articless
-            , 200);
-        } else {
-            return response()->json([
-                'message' => 'articles not found',
-            ], 404);
-        }
+        $article = Article::find($id);
+        $article->title = $request->input('title');
+        $article->category_id = $request->input('category_id');
+        $base64File = $request->input('pic1');
+            // Log::info($$base64File);
+            // "data:{拡張子}"と"base64,"で区切る
+            list($fileInfo, $fileData) = explode(';', $base64File);
+            // 拡張子を取得
+            $extension = explode('/', $fileInfo)[1];
+            // $fileDataにある"base64,"を削除する
+            list(, $fileData) = explode(',', $fileData);
+            // base64をデコード
+            $fileData = base64_decode($fileData);
+            // ランダムなファイル名生成
+            $fileName = md5(uniqid(rand(), true)). ".$extension";
+            // AWS S3 に保存する
+            Storage::disk('s3')->put($fileName, $fileData);
+            // DBに保存
+        $article->pic1 = $fileName;
+        $article->body = $request->input('body');        
+        $article->update();
     }
 
     /**

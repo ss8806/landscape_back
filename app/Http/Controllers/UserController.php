@@ -26,32 +26,12 @@ class UserController extends Controller
         $posts = $user->postArticles()->orderBy('id', 'DESC')->take(5)->get();
         $likes = $user->likeArticles()->orderBy('id', 'DESC')->take(5)->get();
 
-        return Inertia::render('Mypage/index',
-        [ 
-            'user' => Auth::user(),
-            'success' => session('success'),
-            'error' => session('error'),
-            'posts' => $posts->map(function ($post) {
-                return [
-                    'id' => $post->id,
-                    'title' => $post->title,
-                    'pic1' => $post->pic1,
-                    'category_id' => $post->category()->get(),
-                    'show_url' => URL::route('edit', $post->id),
-                ];
-            }),
-            'likes' => $likes->map(function ($like) {
-                return [
-                    // 'like' => $like,
-                    'id' => $like->id,
-                    'title' => $like->title,
-                    'pic1' => $like->pic1,
-                    'category_id' => $like->category()->get(),
-                    'show_url' => URL::route('show', $like->id),
-                ];
-            }),
-        ]);
+        return response()->json(
+            $posts
+        );
     }
+
+    
 
     public function showPosts()
     {
