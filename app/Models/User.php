@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\hasManyThrough;
 
+
 // class User extends Authenticatable implements MustVerifyEmail
 class User extends Authenticatable
 {
@@ -54,6 +55,18 @@ class User extends Authenticatable
     //第二引数には多側のキー(外部キー)であるuser_idを指定,これによりpostArticlesメソッドで投稿したArticleを取得できる。
         return $this->hasMany(Article::class, 'user_id');
     }
+
+    // public function postArticles()
+    // {
+    // //第二引数には多側のキー(外部キー)であるuser_idを指定,これによりpostArticlesメソッドで投稿したArticleを取得できる。
+    //     return $this->hasManyThrough('App\Models\Category', //つなげる先のテーブルクラス
+    //     'App\Models\Article', //中間テーブルクラス
+    //     'category_id', //仲介するモデルの外部キー名
+    //     'name', // 最終的に取得したいモデルのローカルキー名
+    //     null, // 
+    //     'id' // usersテーブルのローカルキー
+    //     );
+    // }
 
     // public function likeArticles()
     // {

@@ -23,29 +23,30 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles');
+// Route::post('/filter', [ArticleController::class, 'filter'])->name('filter');
+Route::get('/filter', [ArticleController::class, 'filter'])->name('filter');
 Route::get('/article/{id}/show', [ArticleController::class, 'show'])->name('show');
-Route::get('/article/{id}/c_name', [ArticleController::class, 'c_name'])->name('c_name');
-Route::get('/article/{id}/u_name', [ArticleController::class, 'u_name'])->name('u_name');
-
+Route::get('/article/{id}/endpoint', [ArticleController::class, 'endpoint'])->name('endpoint');
 // Route::apiResource('/articles', ArticleController::class);
-// Route::apiResource('/books', BookController::class);
 
 Route::middleware('auth:sanctum')
     ->group(function () {
         // profile
-        Route::get('/mypage', [UserController::class, 'index'])->name('mypage');
+        Route::get('/mypage', [UserController::class, 'mypage'])->name('mypage');
+        Route::get('/posts', [UserController::class, 'posts'])->name('posts');
+        Route::get('/likes', [UserController::class, 'likes'])->name('likes');
         Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');   
         Route::put('/editName', [UserController::class, 'editName'])->name('editName');
         Route::put('/editEmail', [UserController::class, 'editEmail'])->name('editEmail');
         Route::post('/editIcon', [UserController::class, 'editIcon'])->name('editIcon');
         Route::put('/editPassword', [UserController::class, 'editPassword'])->name('editPassword');
-        Route::get('/posts', [UserController::class, 'showPosts'])->name('posts');
-        Route::get('/likes',  [UserController::class, 'showLikes'])->name('likes');
+        Route::get('/showPosts', [UserController::class, 'showPosts'])->name('posts');
+        Route::get('/showLikes',  [UserController::class, 'showLikes'])->name('likes');
         // article
         Route::get('/article/create', [ArticleController::class, 'create'])->name('create');
         Route::post('/article/store', [ArticleController::class, 'store'])->name('store');
         Route::get('/article/{id}/edit', [ArticleController::class, 'edit'])->name('edit');
-        Route::post('/article/{id}/update', [ArticleController::class, 'update'])->name('update');
+        Route::put('/article/{id}/update', [ArticleController::class, 'update'])->name('update');
         Route::delete('/article/{id}/delete',  [ArticleController::class, 'destroy'])->name('delete');
 
         // like

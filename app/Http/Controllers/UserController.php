@@ -16,70 +16,69 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 use App\Models\User;
 use Illuminate\Validation\Rules;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
 
 class UserController extends Controller
 {
-    public function index()
+    public function mypage()
     {
         $user = Auth::user();
         $posts = $user->postArticles()->orderBy('id', 'DESC')->take(5)->get();
         $likes = $user->likeArticles()->orderBy('id', 'DESC')->take(5)->get();
+        return response()->json(
+            [$posts, $likes]
+        );
+    }
 
+    public function posts()
+    {
+        $user = Auth::user();
+        $posts = $user->postArticles()->orderBy('id', 'DESC')->take(5)->get();
         return response()->json(
             $posts
         );
     }
 
-    
+    public function likes()
+    {
+        $user = Auth::user();
+        $likes = $user->likeArticles()->orderBy('id', 'DESC')->take(5)->get();
+        return response()->json(
+            $likes
+        );
+    }
 
     public function showPosts()
     {
         $user = Auth::user();
         $posts = $user->postArticles()->orderBy('id', 'DESC')->get();
 
-        return Inertia::render('Mypage/Posts',
-        [ 
-            'user' => Auth::user(),            
-            'posts' => $posts->map(function ($post) {
-                return [
-                    'id' => $post->id,
-                    'title' => $post->title,
-                    'pic1' => $post->pic1,
-                    //'user_id' => $article->user()->get(),
-                    'category_id' => $post->category()->get(),
-                    'show_url' => URL::route('edit', $post->id),
-                ];
-            }),
-        ]);
+        return response()->json(
+            $posts
+        );
     }
+
+    // public function showPosts()
+    // {
+    //     $users = DB::select("SELECT * FROM users");
+    //     // $article = DB::table('articles')
+    //     // ->join('users', 'articles.user_id', '=', 'users.id')
+    //     // ->select('articles.id as article_id', 'title', 'body', 'user_id','users.id', 'users.name')
+    //     // ->orderBy('articles.created_at', 'desc')
+    //     // ->get();
+    //     return response()->json(
+    //         [$users]
+    //     );
+    // }
 
     public function showLikes()
     {
         $user = Auth::user();
         $likes = $user->likeArticles()->orderBy('id', 'DESC')->get();
-
-        return Inertia::render('Mypage/Likes',[ 'user' => Auth::user(),
-            'likes' => $likes->map(function ($like) {
-                return [
-                    'id' => $like->id,
-                    'title' => $like->title,
-                    'pic1' => $like->pic1,
-                    'category_id' => $like->category()->get(),
-                    'show_url' => URL::route('show', $like->id),
-                ];
-            }),
-        ]);
-    }
-
-    public function showProfile()
-    {
-        return Inertia::render('Mypage/Profile',
-        [
-            'user' => Auth::user(),
-            'success' => session('success'),
-            'error' => session('error'),
-        ]);   
+        return response()->json(
+            $likes
+        );
     }
 
     // public function editAvatar(Request $request)
@@ -140,10 +139,6 @@ class UserController extends Controller
         $user = Auth::user();
         $user->name = $request->input('editName');
         $user->update();
-
-        return back()->with('success', '名前を変更しました。');
-        // return Redirect::route('profile',['success' => '名前を変更']);
-        //return redirect()->route('profile')->with('success', '名前を変更しました。');
     }
     
     public function editEmail(ProfileRequest $request)
@@ -151,7 +146,6 @@ class UserController extends Controller
         $user = Auth::user();
         $user->email = $request->input('editEmail'); 
         $user->update();
-        return back()->with('success', 'メールアドレスを変更しました。'); 
     }
     public function editPassword(Request $request)
     {
@@ -159,16 +153,48 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = Auth::user();
-        $inputPass = $request->input('password');
-        $length = strlen($inputPass);
+        // $status = Password::reset(
+        //     $request->only('email', 'password', 'password_confirmation', 'token'),
+        //     function ($user) use ($request) {
+        //         $user->forceFill([
+        //             'password' => Hash::make($request->password),
+        //             'remember_token' => Str::random(60),
+        //         ])->save();        
+        //     }
+        // );
 
-        if($length >= 4 ){
-        $user->password = Hash::make($request->password);
-        $user->save();
-            return back()->with('success', 'パスワードを変更しました。');
-        }else{
-            return back()->with('error', 'パスワードの変更に失敗しました');
-        }
+        $user = Auth::user();
+        // $inputPass = $request->input('password');
+        // $length = strlen($inputPass);
+
+        // if($length >= 4 ){
+        // $user->password = Hash::make($request->password);
+        // $user->save();
+        // }
+
+        Password::reset(
+            $user->forceFill([
+                'password' => Hash::make($request->password)
+            ])->save()
+        );
+        // $user->password = Hash::make($request->password);
     }
 }
+
+// $user = User::update([
+//     'name' => $request->name,
+//     'email' => $request->email,
+//     'password' => Hash::make($request->password),
+// ]);
+
+// $status = Password::reset(
+//     $request->only('email', 'password', 'password_confirmation', 'token'),
+//     function ($user) use ($request) {
+//         $user->forceFill([
+//             'password' => Hash::make($request->password),
+//             'remember_token' => Str::random(60),
+//         ])->save();
+
+//         event(new PasswordReset($user));
+//     }
+// );
