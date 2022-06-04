@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')
         Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');   
         Route::put('/editName', [UserController::class, 'editName'])->name('editName');
         Route::put('/editEmail', [UserController::class, 'editEmail'])->name('editEmail');
-        Route::post('/editIcon', [UserController::class, 'editIcon'])->name('editIcon');
+        Route::put('/editIcon', [UserController::class, 'editIcon'])->name('editIcon');
         Route::put('/editPassword', [UserController::class, 'editPassword'])->name('editPassword');
         Route::get('/showPosts', [UserController::class, 'showPosts'])->name('posts');
         Route::get('/showLikes',  [UserController::class, 'showLikes'])->name('likes');

@@ -3,18 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileRequest;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\URL;
-use App\Models\User;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
@@ -72,8 +65,7 @@ class UserController extends Controller
     //     );
     // }
 
-    public function showLikes()
-    {
+    public function showLikes(){
         $user = Auth::user();
         $likes = $user->likeArticles()->orderBy('id', 'DESC')->get();
         return response()->json(
@@ -81,57 +73,34 @@ class UserController extends Controller
         );
     }
 
-    // public function editAvatar(Request $request)
-    // {
-    //     $user = Auth::user();
-         
-    //      if ($request->has('editicon')) { 
-    //          $fileName = $this->saveIcon($request->file('editicon')); //アップロードされた画像の情報を取得
-    //          $user->icon = $fileName; // ファイル名をDBに保存
-    //      }
-
-    //      $user->save();
- 
-    //      return redirect()->back()
-    //          ->with('success', 'プロフィールを変更しました。');
-    // }
-
-    // public function editIcon(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     $file_base64 = $request->input('icon');
-    //     Log::info($file_base64);
-    //     // Base64文字列をデコードしてバイナリに変換
-    //     list(, $fileData) = explode(';', $file_base64);
-    //     list(, $fileData) = explode(',', $fileData);
-    //     $fileData = base64_decode($fileData);
-
-    //     // ランダムなファイル名 + 拡張子
-    //     $fileName = Str::random(20).'.jpg';
-
-    //     // 保存するパスを決める
-    //     $path = 'mydata/'.$fileName; 
-
-    //     // AWS S3 に保存する
-    //     Storage::disk('s3')->put($path, $fileData);
-    //     // DBに保存
-    //     $user->icon = $fileName;
-    //     $user->save();
-    //     User::where('id', $request->id)->update(['icon' => $fileName]);
-    //     return redirect()->back();
-    // }
-
-    public function editIcon(ProfileRequest $request)
+    public function editIcon(Request $request)
     {
-        $user = Auth::user();
-        if($file = $request->file('icon')){
-            $path = 'mydata'; 
-            //     // AWS S3 に保存する
-            $s3_file_name = Storage::disk('s3')->put($path, $file);
-            $user->icon  = $s3_file_name;
+        try{
+            $user = Auth::user();
+            $base64File = $request->input('icon');
+            // Log::info($$base64File);
+            // "data:{拡張子}"と"base64,"で区切る
+            list($fileInfo, $fileData) = explode(';', $base64File);
+            // 拡張子を取得
+            $extension = explode('/', $fileInfo)[1];
+            // $fileDataにある"base64,"を削除する
+            list(, $fileData) = explode(',', $fileData);
+            // base64をデコード
+            $fileData = base64_decode($fileData);
+            // ランダムなファイル名生成
+            $fileName = md5(uniqid(rand(), true)). ".$extension";
+            // AWS S3 に保存する
+            Storage::disk('s3')->put($fileName, $fileData);
+            // DBに保存
+            $user->icon = $fileName;                
+            $user->save();
+            // return response()->json(compact('article'),200);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(
+                "error"
+            );
         }
-        $user->update();
-        return back()->with('success', 'アイコンを変更しました。');
     }
 
     public function editName(ProfileRequest $request)
@@ -152,49 +121,11 @@ class UserController extends Controller
         $request->validate([
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-
-        // $status = Password::reset(
-        //     $request->only('email', 'password', 'password_confirmation', 'token'),
-        //     function ($user) use ($request) {
-        //         $user->forceFill([
-        //             'password' => Hash::make($request->password),
-        //             'remember_token' => Str::random(60),
-        //         ])->save();        
-        //     }
-        // );
-
+        
         $user = Auth::user();
-        // $inputPass = $request->input('password');
-        // $length = strlen($inputPass);
-
-        // if($length >= 4 ){
-        // $user->password = Hash::make($request->password);
-        // $user->save();
-        // }
-
-        Password::reset(
-            $user->forceFill([
-                'password' => Hash::make($request->password)
-            ])->save()
-        );
-        // $user->password = Hash::make($request->password);
+     
+        // $request->only('password', 'password_confirmation');
+        $user->password = Hash::make($request->password);
+        $user->save();
     }
 }
-
-// $user = User::update([
-//     'name' => $request->name,
-//     'email' => $request->email,
-//     'password' => Hash::make($request->password),
-// ]);
-
-// $status = Password::reset(
-//     $request->only('email', 'password', 'password_confirmation', 'token'),
-//     function ($user) use ($request) {
-//         $user->forceFill([
-//             'password' => Hash::make($request->password),
-//             'remember_token' => Str::random(60),
-//         ])->save();
-
-//         event(new PasswordReset($user));
-//     }
-// );
