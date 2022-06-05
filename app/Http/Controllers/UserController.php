@@ -24,23 +24,23 @@ class UserController extends Controller
         );
     }
 
-    public function posts()
-    {
-        $user = Auth::user();
-        $posts = $user->postArticles()->orderBy('id', 'DESC')->take(5)->get();
-        return response()->json(
-            $posts
-        );
-    }
+    // public function posts()
+    // {
+    //     $user = Auth::user();
+    //     $posts = $user->postArticles()->orderBy('id', 'DESC')->take(5)->get();
+    //     return response()->json(
+    //         $posts
+    //     );
+    // }
 
-    public function likes()
-    {
-        $user = Auth::user();
-        $likes = $user->likeArticles()->orderBy('id', 'DESC')->take(5)->get();
-        return response()->json(
-            $likes
-        );
-    }
+    // public function likes()
+    // {
+    //     $user = Auth::user();
+    //     $likes = $user->likeArticles()->orderBy('id', 'DESC')->take(5)->get();
+    //     return response()->json(
+    //         // $likes
+    //     );
+    // }
 
     public function showPosts()
     {

@@ -128,26 +128,6 @@ class ArticleController extends Controller
         }
     }
 
-    // public function edit(Request $request, $id)
-    // {  
-    //         $user = Auth::user();
-    //         $article = Article::find($id);
-    //         $user_id = $article->user()->get();
-    //         // $c_name = $article->category()->get();
-            
-    //         $categories = Category::orderBy('sort_no')->get();
-    //         // return response()->json(compact('article'),200);
-    //         return response()->json(
-    //             // [$article, $user_id, 200]
-    //             $article
-    //         );
-
-    //         // $categories = Category::all();
-    //         //     return response()->json(
-    //         //     $categories, 200
-    //         // );
-    // }
-
     public function edit(Request $request, $id)
     {
         $article = Article::find($id);
