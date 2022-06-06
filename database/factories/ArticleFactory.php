@@ -23,7 +23,7 @@ class ArticleFactory extends Factory
      */
     public function definition()
     {
-        $user_id = $this->faker->numberBetween(1,3);
+        // $user_id = $this->faker->numberBetween(1,3);
         $category_id = $this->faker->numberBetween(1,5);
         return [
             'title' => $this->faker->realText(rand(15,30)),
