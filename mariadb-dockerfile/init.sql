@@ -1,0 +1,1 @@
+grant all privileges on landscape0622.* TO 'dbuser'@'127.0.0.1' identified by 'landscape0622dbuser';

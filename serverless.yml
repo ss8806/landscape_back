@@ -7,6 +7,8 @@ provider:
   # The stage of the application, e.g. dev, production, staging… ('dev' is the default)
   stage: shodev2206062323
   runtime: provided.al2
+  # httpApi:
+  #   cors: true
 
 custom:
   defaultStage: dev
@@ -34,7 +36,9 @@ functions:
     layers:
       - ${bref:layer.php-81-fpm}
     events:
-      - httpApi: "*"
+        # - httpApi: "*"
+        -   http: 'ANY /'
+        -   http: 'ANY /{proxy+}'
       # This function lets us run artisan commands in Lambda
     vpc:
       securityGroupIds:
@@ -75,6 +79,11 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.environments.AWS_BUCKET}
+        CorsConfiguration:
+            CorsRules:
+                -   AllowedHeaders: ["*"]
+                    AllowedMethods: [GET, POST]
+                    AllowedOrigins: ["*"]
     # The policy that makes the bucket publicly readable
     AssetsBucketPolicy:
       Type: AWS::S3::BucketPolicy
