@@ -1,5 +1,5 @@
 FROM php:8.1.6-apache
-
+ENV DEBIAN_FRONTEND noninteractive
 # PHPのモジュールなどをインストール
 RUN apt-get update \
   && apt-get install -y zlib1g-dev \
