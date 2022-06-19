@@ -1,7 +1,7 @@
 FROM php:8.1.6-apache
 
 # PHPのモジュールなどをインストール
-RUN sudo apt-get update \
+RUN apt-get update \
   && apt-get install -y apt-utils \
   && apt-get install -y zlib1g-dev \
   && apt-get install -y zip unzip \
@@ -14,7 +14,7 @@ RUN sudo apt-get update \
 ENV TZ=Asia/Tokyo
 
 # cronのインストール
-RUN sudo apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
   busybox-static \
   && apt-get clean
 
