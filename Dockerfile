@@ -12,6 +12,7 @@ RUN apt-get update \
 
 # タイムゾーン設定
 ENV TZ=Asia/Tokyo
+ENV DEBIAN_FRONTEND noninteractive
 
 # cronのインストール
 RUN apt-get update && apt-get install -y \
