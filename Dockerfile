@@ -1,7 +1,8 @@
 FROM php:8.1.6-apache
-ENV DEBIAN_FRONTEND noninteractive
+
 # PHPのモジュールなどをインストール
 RUN apt-get update \
+  && apt-get install -y apt-utils \
   && apt-get install -y zlib1g-dev \
   && apt-get install -y zip unzip \
   && apt-get -y install libzip-dev libonig-dev \
