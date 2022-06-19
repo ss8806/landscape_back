@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Article extends Model
 {
@@ -28,6 +29,11 @@ class Article extends Model
     {
     // likesにおけるarticleモデルとuserモデルの関係は多対多となる。 第二引数には中間テーブルlikesを指定
         return $this->belongsToMany('App\Models\User', 'likes',)->withTimestamps();
+    }
+
+    public function raviews(): HasMany
+    {
+        return $this->hasmany('App\Models\Review', 'article_id');
     }
 
     public function isLiked(?User $user): bool

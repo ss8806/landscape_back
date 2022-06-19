@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateRequest;
@@ -11,7 +12,7 @@ use App\Http\Requests\EditRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Stmt\TryCatch;
+
 
 class ArticleController extends Controller
 {
@@ -23,7 +24,7 @@ class ArticleController extends Controller
             $query
             ->join('users', 'users.id', '=', 'articles.user_id',)
             ->join('categories', 'categories.id', '=', 'articles.category_id',)
-            ->select('articles.id as article_id', 'articles.updated_at as updated','title','pic1', 'body', 'category_id', 'users.name as u_name','categories.name as c_name')
+            ->select('articles.id as article_id', 'articles.updated_at as updated','title','pic1','avgrate', 'body', 'category_id', 'users.name as u_name','categories.name as c_name')
             ->orderBy('articles.created_at', 'desc');
 
             // キーワードで絞り込み
@@ -64,13 +65,11 @@ class ArticleController extends Controller
 
     public function show(Request $request, $id)
     {  
-        
         $article = Article::find($id);
         $c_name = $article->category()->get();
         $u_name = $article->user()->get();           
-        // $c_name[] = $article; 
         $initial_is_liked = $article->isLiked(Auth::user());
-        $endpoint = route('like', $article);
+        $endpoint = route('like', $article); //  "http:localhst/api/article/1/like"
         return response()->json(
             [$article, $c_name, $u_name, $initial_is_liked, $endpoint]
         );
@@ -115,8 +114,8 @@ class ArticleController extends Controller
                 // AWS S3 に保存する
                 Storage::disk('s3')->put($fileName, $fileData);
                 // DBに保存
-                $article->pic1 = $fileName;
-                
+                $article->pic1 = $fileName; 
+                              
             $article->body     = $request->input('body');
             $article->save();
             // return response()->json(compact('article'),200);
@@ -209,5 +208,75 @@ class ArticleController extends Controller
     {
         //モデルを結びつけている中間テーブルnoレコードを削除する。 
         $article->likes()->detach($request->user()->id);
-    }   
+    }
+
+    public function getReview(Request $request, Review $review, $id)
+    {
+        $user = Auth::user();
+        $article = Article::find($id);
+        $query = Review::query();
+
+        $query
+        ->select('id','reviews.article_id as article_id', 'reviews.user_id as user_id',  'reviews.rate as rate')
+        ->where('article_id', $article->id)
+        ->where('user_id', $user->id );
+
+        $review = $query->get();
+        return response()->json(
+            $review
+            // [$review, $user->id, $article->id] //デバック
+        );
+    }
+
+    public function upsertReview(Request $request, Review $review, $id)
+    {
+        if ($search_review = Review::find($id)){
+            $search_review->rate = $request->input('value');
+            $search_review->update(); 
+        } else {
+            $user = Auth::user();
+            $review->rate = $request->input('value');
+            $review->user_id = $user->id;
+            $review->article_id = $request->input('a_id');
+            $review->save(); 
+        }
+
+        $a_id = $request->input('a_id'); // putされたパラメータ
+        $article = Article::find($a_id);
+            // アイディアの平均評価を算出する
+            $articles = Article::query()->get();
+            // 生SQL SELECT AVG(rates) as avgrate FROM reviews GROUP BY review_id
+            $avg = DB::table('reviews')
+            ->select(DB::raw('article_id, avg(rate) as avgrate'))
+            ->where('article_id', $a_id) // article_idを絞る
+            ->groupBy('article_id')
+            ->get();      
+            $article->avgrate = $avg[0]->avgrate;
+            $article->save();
+            return response()->json($article);
+    }
+
+    public function destroyReview($id)
+    { 
+        // $reviews = Review::where('id', $id)->delete();
+        // if ($reviews) {
+        //     return response()->json([
+        //         'message' => 'review deleted successfully',
+        //     ], 200);
+        // } else {
+        //     return response()->json([
+        //         'message' => 'review not found',
+        //     ], 500);
+        // }
+
+        $user = Auth::user();
+        $article = Article::find($id);
+        $query = Review::query();
+
+        $query
+        ->select('id','reviews.article_id as article_id', 'reviews.user_id as user_id',  'reviews.rate as rate')
+        ->where('article_id', $article->id)
+        ->where('user_id', $user->id )
+        ->delete();
+    }
 }

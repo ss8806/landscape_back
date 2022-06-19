@@ -4,8 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\RateController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\BookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,4 +52,9 @@ Route::middleware('auth:sanctum')
         // like
         Route::put('article/{article}/like', [ArticleController::class, 'like'])->name('like');
         Route::delete('article/{article}/like', [ArticleController::class, 'unlike'])->name('unlike');
+
+        // review
+        Route::get('/article/{id}/review', [ArticleController::class, 'getReview']);
+        Route::put('/article/{id}/review', [ArticleController::class, 'upsertReview']);
+        Route::delete('/article/{id}/review', [ArticleController::class, 'destroyReview']);
     });
