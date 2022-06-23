@@ -56,7 +56,7 @@ class User extends Authenticatable
     //第二引数には多側のキー(外部キー)であるuser_idを指定,これによりpostArticlesメソッドで投稿したArticleを取得できる。
         return $this->hasMany(Article::class, 'user_id');
     }
-    
+
     // public function postArticles()
     // {
     // //第二引数には多側のキー(外部キー)であるuser_idを指定,これによりpostArticlesメソッドで投稿したArticleを取得できる。
@@ -81,5 +81,11 @@ class User extends Authenticatable
                                     'article_id' // usersテーブルのローカルキー
                                     );
                                     // ->whereNull('users.deleted_at');
+    }
+
+    public function likeArticlesDelete()
+    {
+    //第二引数には多側のキー(外部キー)であるuser_idを指定,これによりpostArticlesメソッドで投稿したArticleを取得できる。
+        return $this->hasMany(Like::class, 'user_id')->delete();
     }
 }

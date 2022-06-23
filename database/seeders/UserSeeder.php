@@ -21,9 +21,9 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
-                'name' => 'yamada',
-                'email' => 'yamada@example.com',
-                'password' => \Hash::make('123456789'),
+                'name' => 'b',
+                'email' => 'b@b.com',
+                'password' => \Hash::make('b'),
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [

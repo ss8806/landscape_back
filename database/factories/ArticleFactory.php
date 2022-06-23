@@ -24,13 +24,13 @@ class ArticleFactory extends Factory
      */
     public function definition()
     {
-        // $user_id = $this->faker->numberBetween(1,3);
+        $user_id = $this->faker->numberBetween(1,2);
         $category_id = $this->faker->numberBetween(1,5);
         return [
             'title' => $this->faker->realText(rand(15,15)),
             'body' => $this->faker->realText(rand(40,100)),
             'avgrate' => 2,
-            'user_id' => 1,
+            'user_id' => $user_id,
             'category_id' => $category_id,                      
             'created_at' => now(),
             'updated_at' => now()
