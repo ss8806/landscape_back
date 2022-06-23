@@ -133,6 +133,7 @@ class UserController extends Controller
     {
         try{
             $user = Auth::user();
+            $user->postArticles()->orderBy('id', 'DESC')->delete();
             $user->delete();
             return response()->json("delete");
         } catch (\Exception $e) {
