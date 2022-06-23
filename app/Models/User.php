@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\hasManyThrough;
-
+use Illuminate\Database\Eloquent\SoftDeletes; 
 
 // class User extends Authenticatable implements MustVerifyEmail
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+    use SoftDeletes; 
 
     /**
      * The attributes that are mass assignable.
@@ -56,6 +57,12 @@ class User extends Authenticatable
         return $this->hasMany(Article::class, 'user_id');
     }
 
+    public function postArticlesDelete()
+    {
+    //第二引数には多側のキー(外部キー)であるuser_idを指定,これによりpostArticlesメソッドで投稿したArticleを取得できる。
+        return $this->hasMany(Article::class, 'user_id')->delete();
+    }
+
     // public function postArticles()
     // {
     // //第二引数には多側のキー(外部キー)であるuser_idを指定,これによりpostArticlesメソッドで投稿したArticleを取得できる。
@@ -66,11 +73,6 @@ class User extends Authenticatable
     //     null, // 
     //     'id' // usersテーブルのローカルキー
     //     );
-    // }
-
-    // public function likeArticles()
-    // {
-    //     return $this->hasMany(Like::class, 'user_id');
     // }
 
     public function likeArticles(): hasManyThrough
@@ -84,5 +86,6 @@ class User extends Authenticatable
                                     null, // 
                                     'article_id' // usersテーブルのローカルキー
                                     );
+                                    // ->whereNull('users.deleted_at');
     }
 }

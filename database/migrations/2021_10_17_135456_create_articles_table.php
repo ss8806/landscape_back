@@ -24,6 +24,7 @@ class CreateArticlesTable extends Migration
             $table->text('comment')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('category_id')->constrained('categories');
+            $table->softDeletes();
             //$table->foreignId('user_id')->onDelete('cascade');
             //$table->foreignId('category_id')->onDelete('cascade');
             $table->timestamps();

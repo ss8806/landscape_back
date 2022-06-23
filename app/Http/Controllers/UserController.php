@@ -67,7 +67,9 @@ class UserController extends Controller
 
     public function showLikes(){
         $user = Auth::user();
-        $likes = $user->likeArticles()->orderBy('id', 'DESC')->get();
+        $likes = $user->likeArticles()
+        // ->whereNull('deleted_at') なくてもよい
+        ->orderBy('id', 'DESC')->get();
         return response()->json(
             $likes
         );
@@ -121,11 +123,23 @@ class UserController extends Controller
         $request->validate([
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-        
         $user = Auth::user();
-     
         // $request->only('password', 'password_confirmation');
         $user->password = Hash::make($request->password);
         $user->save();
+    }
+
+    public function deleteUser(Request $request)
+    {
+        try{
+            $user = Auth::user();
+            $user->delete();
+            return response()->json("delete");
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(
+                "error"
+            );
+        }
     }
 }

@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')
         Route::put('/editEmail', [UserController::class, 'editEmail'])->name('editEmail');
         Route::put('/editIcon', [UserController::class, 'editIcon'])->name('editIcon');
         Route::put('/editPassword', [UserController::class, 'editPassword'])->name('editPassword');
+        Route::delete('/deleteUser', [UserController::class, 'deleteUser'])->name('deleteUser');
         Route::get('/showPosts', [UserController::class, 'showPosts'])->name('posts');
         Route::get('/showLikes',  [UserController::class, 'showLikes'])->name('likes');
         // article
@@ -54,7 +55,7 @@ Route::middleware('auth:sanctum')
         Route::delete('article/{article}/like', [ArticleController::class, 'unlike'])->name('unlike');
 
         // review
-        Route::get('/article/{id}/review', [ArticleController::class, 'getReview']);
-        Route::put('/article/{id}/review', [ArticleController::class, 'upsertReview']);
-        Route::delete('/article/{id}/review', [ArticleController::class, 'destroyReview']);
+        Route::get('/review/{id}/review', [ArticleController::class, 'getReview']);
+        Route::put('/review/{id}/review', [ArticleController::class, 'upsertReview']);
+        Route::delete('/review/{id}/review', [ArticleController::class, 'destroyReview']);
     });

@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
-
 class ArticleController extends Controller
 {
     public function index(Request $request){
@@ -22,9 +21,13 @@ class ArticleController extends Controller
             $query = Article::query();
 
             $query
-            ->join('users', 'users.id', '=', 'articles.user_id',)
+            ->join('users', 'users.id', '=', 'articles.user_id')
+            // ->join('users', 'deleted_at', '=', null)
             ->join('categories', 'categories.id', '=', 'articles.category_id',)
-            ->select('articles.id as article_id', 'articles.updated_at as updated','title','pic1','avgrate', 'body', 'category_id', 'users.name as u_name','categories.name as c_name')
+            ->select('articles.id as article_id', 'articles.updated_at as updated',
+                'title','pic1','avgrate', 'body', 'category_id', 
+                'users.name as u_name','categories.name as c_name',)
+            ->whereNull('users.deleted_at')// ソフトデリートしたユーザーのは表示しない
             ->orderBy('articles.created_at', 'desc');
 
             // キーワードで絞り込み
@@ -54,7 +57,7 @@ class ArticleController extends Controller
         }
     }
 
-    private function escape(string $value)
+    private function escape(string $value) // このクラスでのみメソッドを呼び出せる
     {
         return str_replace(
             ['\\', '%', '_'],
